@@ -6,7 +6,8 @@ using UnityEngine;
 public class HedgehogCharacter : Character
 {
     private int approachCount = 0;
-    private bool pacified = false;
+    private bool approached = false;
+    private bool hasBeenAttacked = false;
 
     public override List<CharacterAction> GetActions(BattleManager manager)
     {
@@ -16,17 +17,10 @@ public class HedgehogCharacter : Character
     };
     }
 
+
     private IEnumerator Approach(BattleManager manager)
     {
-        Character target;
-        if (!IsPlayerControlled)
-        {
-             target = manager.GetLowestHPPlayer();
-        }
-        else
-        {
-             target = manager.GetEnemy();
-        }
+        Character target = IsPlayerControlled ? manager.GetEnemy() : manager.GetLowestHPPlayer();
 
         if (target == null)
         {
@@ -34,10 +28,10 @@ public class HedgehogCharacter : Character
             yield break;
         }
 
+        approachCount++;
+
         if (approachCount < 4)
         {
-            approachCount++;
-
             switch (approachCount)
             {
                 case 1:
@@ -47,36 +41,35 @@ public class HedgehogCharacter : Character
                     manager.dialogue.text = "It's growing closer...";
                     break;
                 case 3:
-                    manager.dialogue.text = "It's right in front of "+ target.CharacterName;
+                    manager.dialogue.text = "It's right in front of " + target.CharacterName;
                     break;
             }
+
             yield return new WaitForSeconds(2f);
             manager.OnActionComplete(false);
         }
         else
         {
-            manager.dialogue.text = target.name + " is impaled on the spikes.";
+            manager.dialogue.text = target.CharacterName + " is impaled on the spikes.";
             yield return new WaitForSeconds(1f);
+
             bool isDead = target.TakeDamage(9, this);
             manager.UpdateHUDForCharacter(target);
             yield return new WaitForSeconds(1f);
-            manager.dialogue.text = "You quickly retreat from it!";
-            yield return new WaitForSeconds(1f);
+
             manager.OnActionComplete(isDead);
         }
-
-
-
     }
 
     public override bool TakeDamage(int amount, Character attacker)
     {
         bool isDead = base.TakeDamage(amount, attacker);
+        hasBeenAttacked = true;
 
         if (attacker != null && attacker != this && attacker.IsAlive && !isDead)
         {
             
-
+            
             attacker.TakeDamage(2, this);
             Manager.UpdateHUDForCharacter(attacker); // update the attacker's HUD!
         }
@@ -87,10 +80,79 @@ public class HedgehogCharacter : Character
         return isDead;
     }
 
-
-    public void CalmStatement()
+    public override List<string> GetDialogueOptions()
     {
-        pacified = true;
-        Debug.Log("The spikes slowly retract...");
+        if(!approached)
+        {
+            return new List<string> { "Get away from me.", "Get closer." };
+        }
+        else if(!hasBeenAttacked)
+        {
+            return new List<string> { "Get closer again" , "I won't hurt you, so don't hurt me."};
+        }
+        else
+        {
+            return new List<string> { "Get closer again." };
+        }
+    }
+
+
+
+    public override void OnTalk(Character speaker)
+    {
+        Manager.ShowDialogueChoices(
+     GetDialogueOptions(),
+     (selectedIndex) =>
+     {
+         if (approached && !hasBeenAttacked)
+         {
+             switch (selectedIndex)
+             {
+                 case 0:
+                     Manager.dialogue.text = "You are impaled on the spikes.";
+                     speaker.TakeDamage(9, this);
+                     break;
+                 case 1:
+                     Manager.dialogue.text = "The spikes retract slowly...";
+                     //recruit the hedgehog
+                     break;
+             }
+         }
+         else if (approached && hasBeenAttacked)
+         {
+             switch (selectedIndex)
+             {
+                 case 0:
+                     Manager.dialogue.text = "You are impaled on the spikes.";
+                     speaker.TakeDamage(9, this);
+                     break;
+
+             }
+         }
+         else
+         {
+             switch (selectedIndex)
+             {
+
+                 case 0:
+                     Manager.dialogue.text = "The spines grow longer...";
+                     approachCount++;
+                     break;
+                 case 1:
+                     Manager.dialogue.text = "The spines quiver...";
+                     approached = true;
+                     break;
+             }
+
+             Manager.StartCoroutine(FinishDialogueAfterDelay());
+         }
+     }
+ );
+
+        IEnumerator FinishDialogueAfterDelay()
+        {
+            yield return new WaitForSeconds(2f);
+            Manager.OnActionComplete(false);
+        }
     }
 }

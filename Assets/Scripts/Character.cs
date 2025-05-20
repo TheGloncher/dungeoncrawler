@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -57,10 +58,19 @@ public class Character : MonoBehaviour
         go.GetComponent<FloatingText>().Initialize("-" + damage.ToString(), Color.red);
     }
 
-    public virtual void OnTalk()
+
+
+
+    public virtual void OnTalk(Character speaker)
     {
-        Debug.Log($"{CharacterName} was talked to.");
+        
     }
+
+    public virtual List<string> GetDialogueOptions()
+    {
+        return new List<string>();
+    }
+
 
     public bool IsAlive => CurrentHP > 0;
 

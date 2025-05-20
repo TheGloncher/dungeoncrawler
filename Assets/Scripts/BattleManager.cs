@@ -49,6 +49,9 @@ public class BattleManager : MonoBehaviour
     [SerializeField] private GameObject moveSign;
     [SerializeField] private TextMeshProUGUI moveText;
 
+    public List<Button> DialogueButtons;
+    public List<TextMeshProUGUI> DialogueTexts;
+
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -245,7 +248,7 @@ public class BattleManager : MonoBehaviour
 
         moveSign.SetActive(true);
         moveText.text = selectedAction.actionName;
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1.5f);
         moveSign.SetActive(false);
 
         //  Directly yield the coroutine
@@ -331,7 +334,7 @@ public class BattleManager : MonoBehaviour
                 // Start coroutine on button click
                 ActionButtons[i].onClick.AddListener(() =>
                 {
-                    StartCoroutine(actions[index].coroutineCallback());
+                    StartCoroutine(ExecutePlayerAction(actions[index]));
                 });
             }
             else
@@ -377,4 +380,51 @@ public class BattleManager : MonoBehaviour
             btn.gameObject.SetActive(false);
 
     }
+
+    private IEnumerator ExecutePlayerAction(CharacterAction action)
+    {
+        HideSubmenu();
+        actButton.gameObject.SetActive(false);
+
+        moveSign.SetActive(true);
+        
+        moveText.text = action.actionName;
+        yield return new WaitForSeconds(1.5f);
+        moveSign.SetActive(false);
+
+        yield return StartCoroutine(action.coroutineCallback());
+    }
+
+    public void ShowDialogueChoices(List<string> options, Action<int> onSelected)
+    {
+        for (int i = 0; i < DialogueButtons.Count; i++)
+        {
+            if (i < options.Count)
+            {
+                DialogueButtons[i].gameObject.SetActive(true);
+                DialogueTexts[i].text = options[i];
+
+                int index = i; // Capture local index
+                DialogueButtons[i].onClick.RemoveAllListeners();
+                DialogueButtons[i].onClick.AddListener(() =>
+                {
+                    HideDialogueChoices();
+                    onSelected?.Invoke(index);
+                });
+            }
+            else
+            {
+                DialogueButtons[i].gameObject.SetActive(false);
+            }
+        }
+    }
+
+    public void HideDialogueChoices()
+    {
+        foreach (var button in DialogueButtons)
+            button.gameObject.SetActive(false);
+    }
+
+
+
 }

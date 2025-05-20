@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 public class Player : Character
 {
@@ -42,10 +43,26 @@ public class Player : Character
 
         manager.OnActionComplete(isDead);
     }
+
     private IEnumerator Talk(BattleManager manager)
     {
-        manager.dialogue.text = $"{CharacterName} is talking.";
-        yield return new WaitForSeconds(1f);
-        manager.OnActionComplete(false);
+        Character target;
+        if (IsPlayerControlled)
+            target = manager.GetEnemy();
+        else
+          target = manager.GetLowestHPPlayer();
+
+        if (target == null)
+        {
+            Debug.LogWarning("No valid target found!");
+            manager.OnActionComplete(true);
+            yield break;
+        }
+
+        target.OnTalk(this);
+        
+
     }
+
+
 }
