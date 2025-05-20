@@ -11,9 +11,9 @@ public class HedgehogCharacter : Character
     public override List<CharacterAction> GetActions(BattleManager manager)
     {
         return new List<CharacterAction>
-        {
-        new CharacterAction("Approach", () => manager.StartCoroutine(Approach(manager)))
-        };
+    {
+        new CharacterAction("Approach", () => Approach(manager))
+    };
     }
 
     private IEnumerator Approach(BattleManager manager)
@@ -47,10 +47,10 @@ public class HedgehogCharacter : Character
                     manager.dialogue.text = "It's growing closer...";
                     break;
                 case 3:
-                    manager.dialogue.text = "It's right in front of "+ target.name;
+                    manager.dialogue.text = "It's right in front of "+ target.CharacterName;
                     break;
             }
-            yield return new WaitForSeconds(1.5f);
+            yield return new WaitForSeconds(2f);
             manager.OnActionComplete(false);
         }
         else

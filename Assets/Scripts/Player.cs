@@ -11,8 +11,8 @@ public class Player : Character
 
         return new List<CharacterAction>
         {
-            new CharacterAction("Strike", () => manager.StartCoroutine(Strike(manager))),
-            new CharacterAction("Talk", () => manager.StartCoroutine(Talk(manager)))
+            new CharacterAction("Strike", () => Strike(manager)),
+            new CharacterAction("Talk", () => Talk(manager))
         };
     }
 
@@ -38,7 +38,7 @@ public class Player : Character
         manager.UpdateHUDForCharacter(target);
         manager.dialogue.text = $"{CharacterName} strikes!";
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2f);
 
         manager.OnActionComplete(isDead);
     }

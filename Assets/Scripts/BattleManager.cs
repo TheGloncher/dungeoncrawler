@@ -240,24 +240,16 @@ public class BattleManager : MonoBehaviour
         }
 
         CharacterAction selectedAction = actions[UnityEngine.Random.Range(0, actions.Count)];
+        //clear the dialogue text
+        dialogue.text = "";
 
         moveSign.SetActive(true);
         moveText.text = selectedAction.actionName;
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2f);
         moveSign.SetActive(false);
 
-        // Instead of .Invoke(), cast and run coroutine manually
-        IEnumerator moveCoroutine = selectedAction.actionCallback.Method.Invoke(selectedAction.actionCallback.Target, new object[] { }) as IEnumerator;
-
-        if (moveCoroutine != null)
-        {
-            yield return StartCoroutine(moveCoroutine);
-        }
-        else
-        {
-            Debug.LogError("Enemy move is not a coroutine.");
-            OnActionComplete(false); // fail safe
-        }
+        //  Directly yield the coroutine
+        yield return StartCoroutine(selectedAction.coroutineCallback());
     }
 
     public void UpdateHUDForCharacter(Character character)
@@ -335,7 +327,12 @@ public class BattleManager : MonoBehaviour
                 ActionButtons[i].gameObject.SetActive(true);
                 ActionNames[i].text = actions[i].actionName;
                 ActionButtons[i].onClick.RemoveAllListeners();
-                ActionButtons[i].onClick.AddListener(() => actions[index].actionCallback());
+
+                // Start coroutine on button click
+                ActionButtons[i].onClick.AddListener(() =>
+                {
+                    StartCoroutine(actions[index].coroutineCallback());
+                });
             }
             else
             {
@@ -343,7 +340,6 @@ public class BattleManager : MonoBehaviour
             }
         }
 
-        // Optionally select the first submenu button
         if (actions.Count > 0)
             EventSystem.current.SetSelectedGameObject(ActionButtons[0].gameObject);
     }

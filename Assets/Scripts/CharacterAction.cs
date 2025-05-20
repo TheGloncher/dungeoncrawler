@@ -1,15 +1,16 @@
+// CharacterAction.cs
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class CharacterAction
 {
-
     public string actionName;
-    public Action actionCallback;
+    public Func<IEnumerator> coroutineCallback;  // Coroutine-compatible
 
-    public CharacterAction(string name, Action callback)
+    public CharacterAction(string name, Func<IEnumerator> coroutineCallback)
     {
-        actionName = name;
-        actionCallback = callback;
+        this.actionName = name;
+        this.coroutineCallback = coroutineCallback;
     }
 }
