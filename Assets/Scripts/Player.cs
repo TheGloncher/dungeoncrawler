@@ -46,11 +46,8 @@ public class Player : Character
 
     private IEnumerator Talk(BattleManager manager)
     {
-        Character target;
-        if (IsPlayerControlled)
-            target = manager.GetEnemy();
-        else
-          target = manager.GetLowestHPPlayer();
+        Debug.Log("Talk action initiated.");
+        Character target = IsPlayerControlled ? manager.GetEnemy() : manager.GetLowestHPPlayer();
 
         if (target == null)
         {
@@ -59,10 +56,15 @@ public class Player : Character
             yield break;
         }
 
-        target.OnTalk(this);
-        
+        List<string> options = target.GetDialogueOptions();
+        Debug.Log("Dialogue options count: " + options.Count);
+        manager.ShowDialogueOptions(options, this);
 
+        // Wait for the dialogue selection to complete via BattleManager
+        while (manager.State == BattleState.PLAYERTURN && manager.IsAwaitingDialogue)
+            yield return null;
+
+        Debug.Log("Talk coroutine resumed after dialogue selection.");
     }
-
 
 }

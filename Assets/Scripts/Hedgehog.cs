@@ -98,61 +98,15 @@ public class HedgehogCharacter : Character
 
 
 
-    public override void OnTalk(Character speaker)
+    public override void OnTalk(Character speaker, int optionIndex)
     {
-        Manager.ShowDialogueChoices(
-     GetDialogueOptions(),
-     (selectedIndex) =>
-     {
-         if (approached && !hasBeenAttacked)
-         {
-             switch (selectedIndex)
-             {
-                 case 0:
-                     Manager.dialogue.text = "You are impaled on the spikes.";
-                     speaker.TakeDamage(9, this);
-                     break;
-                 case 1:
-                     Manager.dialogue.text = "The spikes retract slowly...";
-                     //recruit the hedgehog
-                     break;
-             }
-         }
-         else if (approached && hasBeenAttacked)
-         {
-             switch (selectedIndex)
-             {
-                 case 0:
-                     Manager.dialogue.text = "You are impaled on the spikes.";
-                     speaker.TakeDamage(9, this);
-                     break;
+        if (optionIndex == 0)
+            Manager.dialogue.text = "The hedgehog growls.";
+        else if (optionIndex == 1)
+            Manager.dialogue.text = "It seems confused...";
 
-             }
-         }
-         else
-         {
-             switch (selectedIndex)
-             {
-
-                 case 0:
-                     Manager.dialogue.text = "The spines grow longer...";
-                     approachCount++;
-                     break;
-                 case 1:
-                     Manager.dialogue.text = "The spines quiver...";
-                     approached = true;
-                     break;
-             }
-
-             Manager.StartCoroutine(FinishDialogueAfterDelay());
-         }
-     }
- );
-
-        IEnumerator FinishDialogueAfterDelay()
-        {
-            yield return new WaitForSeconds(2f);
-            Manager.OnActionComplete(false);
-        }
+        
     }
-}
+
+
+    }

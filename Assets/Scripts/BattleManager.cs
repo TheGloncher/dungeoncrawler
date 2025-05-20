@@ -28,6 +28,7 @@ public class BattleManager : MonoBehaviour
     private Character _enemyEntity;
 
     public TextMeshProUGUI dialogue;
+    public GameObject dialogueBox; // Drag your dialogue box here in the inspector
 
     public BattleHUD player1HUD;
     public BattleHUD player2HUD;
@@ -51,6 +52,11 @@ public class BattleManager : MonoBehaviour
 
     public List<Button> DialogueButtons;
     public List<TextMeshProUGUI> DialogueTexts;
+
+    private Character _dialogueSpeaker;
+
+    private bool dialogueResolved = false;
+    public bool IsAwaitingDialogue => DialogueButtons.Exists(b => b.gameObject.activeSelf) && !dialogueResolved;
 
 
 
@@ -395,8 +401,14 @@ public class BattleManager : MonoBehaviour
         yield return StartCoroutine(action.coroutineCallback());
     }
 
-    public void ShowDialogueChoices(List<string> options, Action<int> onSelected)
+    public void ShowDialogueOptions(List<string> options, Character speaker)
     {
+        HideHUD();
+        Debug.Log("ShowDialogueOptions called for " + speaker.CharacterName);
+        _dialogueSpeaker = speaker; // The one who chose to talk
+        dialogueResolved = false; // <- reset the flag
+        actButton.gameObject.SetActive(false);
+
         for (int i = 0; i < DialogueButtons.Count; i++)
         {
             if (i < options.Count)
@@ -404,12 +416,11 @@ public class BattleManager : MonoBehaviour
                 DialogueButtons[i].gameObject.SetActive(true);
                 DialogueTexts[i].text = options[i];
 
-                int index = i; // Capture local index
+                int index = i;
                 DialogueButtons[i].onClick.RemoveAllListeners();
                 DialogueButtons[i].onClick.AddListener(() =>
                 {
-                    HideDialogueChoices();
-                    onSelected?.Invoke(index);
+                    OnDialogueOptionSelected(index);
                 });
             }
             else
@@ -417,12 +428,71 @@ public class BattleManager : MonoBehaviour
                 DialogueButtons[i].gameObject.SetActive(false);
             }
         }
+
+        StartCoroutine(SelectFirstDialogueButton());
+
+    }
+    private IEnumerator SelectFirstDialogueButton()
+    {
+        yield return null; // wait one frame to let Unity process the new active buttons
+
+        if (DialogueButtons.Count > 0 && DialogueButtons[0].gameObject.activeInHierarchy)
+        {
+            EventSystem.current.SetSelectedGameObject(DialogueButtons[0].gameObject);
+        }
     }
 
-    public void HideDialogueChoices()
+    public void HideHUD()
+    {
+        player1HUD.HUD.SetActive(false);
+        if (_player2Entity != null) player2HUD.HUD.SetActive(false);
+        if (_player3Entity != null) player3HUD.HUD.SetActive(false);
+        if (_player4Entity != null) player4HUD.HUD.SetActive(false);
+        //and the dialogue box should be hidden too
+        dialogueBox.SetActive(false);
+        dialogue.text = "";
+
+    }
+    public void UnhideHUD()
+    {
+        player1HUD.HUD.SetActive(true);
+        if (_player2Entity != null) player2HUD.HUD.SetActive(true);
+        if (_player3Entity != null) player3HUD.HUD.SetActive(true);
+        if (_player4Entity != null) player4HUD.HUD.SetActive(true);
+        //and the dialogue box should be hidden too
+        dialogueBox.SetActive(true);
+    }
+    public void HideDialogueOptions()
     {
         foreach (var button in DialogueButtons)
             button.gameObject.SetActive(false);
+    }
+
+    public void OnDialogueOptionSelected(int index)
+    {
+        HideDialogueOptions();
+        UnhideHUD();
+
+        Character enemy = GetEnemy();
+        if (_dialogueSpeaker == null || enemy == null)
+        {
+            Debug.LogWarning("Missing speaker or target for dialogue!");
+            dialogueResolved = true; // <- even on fallback, resolve dialogue
+            OnActionComplete(false);
+            return;
+        }
+
+        enemy.OnTalk(_dialogueSpeaker, index);
+
+        dialogueResolved = true; // <- flag the dialogue as finished
+        StartCoroutine(EndTalkTurn());
+    }
+    private IEnumerator EndTalkTurn()
+    {
+        yield return new WaitForSeconds(2f);
+        dialogue.text = "";
+        OnActionComplete(false);
+
     }
 
 

@@ -61,9 +61,9 @@ public class Character : MonoBehaviour
 
 
 
-    public virtual void OnTalk(Character speaker)
+    public virtual void OnTalk(Character speaker, int optionIndex)
     {
-        
+        Debug.Log($"{CharacterName} had no specific response to the dialogue.");
     }
 
     public virtual List<string> GetDialogueOptions()
