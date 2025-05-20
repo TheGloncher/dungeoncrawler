@@ -1,0 +1,13 @@
+fileFormatVersion: 2
+guid: 30f3611aa0b969945bf270429dcb0006
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - HUD: {instanceID: 0}
+  - FloatingTextPrefab: {fileID: 3529482038726998961, guid: b7832780c8982c14aa2331cb4e5e774c, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
