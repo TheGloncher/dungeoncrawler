@@ -64,11 +64,4 @@ public class Character : MonoBehaviour
 
     public bool IsAlive => CurrentHP > 0;
 
-    public void DisplayMessage(string message, float duration)
-    {
-        if (Manager != null)
-            Manager.StartCoroutine(Manager.ShowMessage(message, duration));
-        else
-            Debug.LogWarning("No BattleManager assigned to Character when trying to display message.");
-    }
 }

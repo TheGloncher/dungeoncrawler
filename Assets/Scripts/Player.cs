@@ -16,12 +16,24 @@ public class Player : Character
         };
     }
 
-    
+
 
     private IEnumerator Strike(BattleManager manager)
     {
-        Character target = manager.GetEnemy();
-        
+        Character target;
+
+        if (IsPlayerControlled)
+            target = manager.GetEnemy();
+        else
+            target = manager.GetLowestHPPlayer();
+
+        if (target == null)
+        {
+            Debug.LogWarning("No valid target found!");
+            manager.OnActionComplete(true);
+            yield break;
+        }
+
         bool isDead = target.TakeDamage(3, this);
         manager.UpdateHUDForCharacter(target);
         manager.dialogue.text = $"{CharacterName} strikes!";

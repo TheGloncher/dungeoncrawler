@@ -46,6 +46,9 @@ public class BattleManager : MonoBehaviour
 
     private List<Character> playerParty = new List<Character>();
 
+    [SerializeField] private GameObject moveSign;
+    [SerializeField] private TextMeshProUGUI moveText;
+
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -53,6 +56,7 @@ public class BattleManager : MonoBehaviour
     {
         State = BattleState.START;
         StartCoroutine(SetupBattle());
+        
     }
 
     IEnumerator SetupBattle()
@@ -138,7 +142,7 @@ public class BattleManager : MonoBehaviour
 
 
     }
-    private Character GetLowestHPPlayer()
+    public Character GetLowestHPPlayer()
     {
         List<Character> lowestHPPlayers = new List<Character>();
         int lowestHP = int.MaxValue;
@@ -226,39 +230,33 @@ public class BattleManager : MonoBehaviour
 
     IEnumerator EnemyTurn()
     {
-        dialogue.text = "The enemy attacks!";
-        yield return new WaitForSeconds(1f);
-        //enemy attacks player
-        Character target = GetLowestHPPlayer();
-        if (target == null)
+        List<CharacterAction> actions = currentCharacter.GetActions(this);
+
+        if (actions == null || actions.Count == 0)
         {
-            State = BattleState.WON;
-            EndBattle();
+            Debug.LogWarning(currentCharacter.CharacterName + " does not know what to do.");
+            OnActionComplete(false);
             yield break;
         }
 
-        dialogue.text = currentCharacter.CharacterName + " attacks " + target.CharacterName + "!";
+        CharacterAction selectedAction = actions[UnityEngine.Random.Range(0, actions.Count)];
+
+        moveSign.SetActive(true);
+        moveText.text = selectedAction.actionName;
         yield return new WaitForSeconds(1f);
+        moveSign.SetActive(false);
 
-        bool isDead = target.TakeDamage(3, currentCharacter);
-        UpdateHUDForCharacter(target);
-        //check if player is alive
+        // Instead of .Invoke(), cast and run coroutine manually
+        IEnumerator moveCoroutine = selectedAction.actionCallback.Method.Invoke(selectedAction.actionCallback.Target, new object[] { }) as IEnumerator;
 
-        yield return new WaitForSeconds(1f);
-
-        
-
-
-
-        if (isDead)
+        if (moveCoroutine != null)
         {
-            State = BattleState.LOST;
-            EndBattle();
+            yield return StartCoroutine(moveCoroutine);
         }
         else
         {
-            State = BattleState.PLAYERTURN;
-            StartNextTurn();
+            Debug.LogError("Enemy move is not a coroutine.");
+            OnActionComplete(false); // fail safe
         }
     }
 
@@ -362,6 +360,7 @@ public class BattleManager : MonoBehaviour
 
     public void OnActionComplete(bool enemyDied)
     {
+        Debug.Log("OnActionComplete was called. Enemy died? " + enemyDied);
         HideSubmenu();
         actButton.gameObject.SetActive(false);
 
@@ -381,17 +380,5 @@ public class BattleManager : MonoBehaviour
         foreach (var btn in ActionButtons)
             btn.gameObject.SetActive(false);
 
-    }
-
-    public IEnumerator ShowMessage(string message, float duration)
-    {
-        dialogue.text = message;
-        yield return Pause(duration);
-        dialogue.text = ""; // Optional clear
-    }
-
-    public IEnumerator Pause(float seconds)
-    {
-        yield return new WaitForSeconds(seconds);
     }
 }
