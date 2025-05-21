@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static GameManager;
 
 public enum BattleState { START, PLAYERTURN, ENEMYTURN, WON, LOST }
 public class BattleManager : MonoBehaviour
@@ -62,6 +63,11 @@ public class BattleManager : MonoBehaviour
 
     public AudioSource AudioSource;
     public AudioClip DeathSfx;
+    public AudioSource MusicSource;
+    public AudioClip VictoryMusic;
+
+    private bool continuePressed = false;
+    public Button continueButton; // Drag your continue button here in the inspector
 
 
 
@@ -84,35 +90,82 @@ public class BattleManager : MonoBehaviour
 
     IEnumerator SetupBattle()
     {
+        turnOrder.Clear();
         GameObject player1 = Instantiate(Player1Prefab, Player1Battlestation);
         _player1Entity = player1.GetComponent<Character>();
-        //check if player2Prefab is not null before instantiating
-        if (Player2Prefab != null)
-        {
-            GameObject player2 = Instantiate(Player2Prefab, Player2Battlestation);
-            _player2Entity = player2.GetComponent<Character>();
+        _player1Entity.CurrentHP = GameManager.Instance.playerHP;
+        _player1Entity.IsPlayerControlled = true;
+        _player1Entity.IsEnemy = false;
+        _player1Entity.Manager = this;
+        _player1Entity.HUD = player1HUD;
 
-        }
-        if (Player3Prefab != null)
-        {
-            GameObject player3 = Instantiate(Player3Prefab, Player3Battlestation);
-            _player3Entity = player3.GetComponent<Character>();
-        }
-
-        if (Player4Prefab != null)
-        {
-            GameObject player4 = Instantiate(Player4Prefab, Player4Battlestation);
-            _player4Entity = player4.GetComponent<Character>();
-        }
         playerParty.Clear();
         playerParty.Add(_player1Entity);
-        if (_player2Entity != null) playerParty.Add(_player2Entity);
-        if (_player3Entity != null) playerParty.Add(_player3Entity);
-        if (_player4Entity != null) playerParty.Add(_player4Entity);
+
+        // ✅ Now load allies from GameManager.recruitedParty
+        Transform[] stations = { Player2Battlestation, Player3Battlestation, Player4Battlestation };
+        BattleHUD[] huds = { player2HUD, player3HUD, player4HUD };
+        Character[] characterRefs = { null, null, null };
+
+        for (int i = 0; i < GameManager.Instance.recruitedParty.Count && i < 3; i++)
+        {
+            PartyMemberData data = GameManager.Instance.recruitedParty[i];
+            Debug.Log($"Trying to load ally prefab: {data.prefabName}");
+            GameObject prefab = Resources.Load<GameObject>($"Characters/{data.prefabName}");
+
+            if (prefab == null)
+            {
+                Debug.LogWarning($"Could not load prefab named {data.prefabName} from Resources/Characters/");
+                continue;
+            }
+
+            GameObject ally = Instantiate(prefab, stations[i]);
+            Character allyChar = ally.GetComponent<Character>();
+
+
+
+            allyChar.PrefabName = data.prefabName;
+            allyChar.CurrentHP = data.currentHP;
+            allyChar.IsPlayerControlled = true;
+            allyChar.IsEnemy = false;
+            allyChar.Manager = this;
+            allyChar.HUD = huds[i];
+
+            if (huds[i] != null && huds[i].HUD != null)
+            {
+                huds[i].HUD.SetActive(true);
+                huds[i].SetHUD(allyChar);
+            }
+            else
+            {
+                Debug.LogWarning($"HUD for Player{i + 2} is missing in the Inspector.");
+            }
+
+            playerParty.Add(allyChar);
+            characterRefs[i] = allyChar;
+        }
+
+        _player2Entity = characterRefs[0];
+        _player3Entity = characterRefs[1];
+        _player4Entity = characterRefs[2];
+
+        // Rebuild prefab references after loading allies
+        Player2Prefab = characterRefs[0] != null
+            ? Resources.Load<GameObject>($"Characters/{characterRefs[0].PrefabName}")
+            : null;
+
+        Player3Prefab = characterRefs[1] != null
+            ? Resources.Load<GameObject>($"Characters/{characterRefs[1].PrefabName}")
+            : null;
+
+        Player4Prefab = characterRefs[2] != null
+            ? Resources.Load<GameObject>($"Characters/{characterRefs[2].PrefabName}")
+            : null;
+
 
         GameObject enemy = Instantiate(EnemyPrefab, EnemyBattlestation);
-
-        _enemyEntity = enemy.GetComponent<Character>();
+        _enemyEntity = enemy.GetComponent<Character>(); // get Character first
+        _enemyEntity.PrefabName = EnemyPrefab.name;    // now safe to access
 
         _player1Entity.HUD = player1HUD;
         if (_player2Entity != null) _player2Entity.HUD = player2HUD;
@@ -125,7 +178,7 @@ public class BattleManager : MonoBehaviour
         if (_player3Entity != null) _player3Entity.Manager = this;
         if (_player4Entity != null) _player4Entity.Manager = this;
         _enemyEntity.Manager = this;
-
+        _player1Entity.CurrentHP = GameManager.Instance.playerHP;
 
         dialogue.text = "The " + _enemyEntity.CharacterName + " approaches.";
 
@@ -297,16 +350,77 @@ public class BattleManager : MonoBehaviour
             character.HUD.SetHUD(character);
     }
 
-    private void EndBattle()
+    private IEnumerator EndBattle()
     {
         if (State == BattleState.WON)
         {
             dialogue.text = "You won the battle!";
+            MusicSource.volume = 0.3f;
+            MusicSource.clip = VictoryMusic;
+            MusicSource.loop = true;
+            MusicSource.Play();
+
+            yield return WaitForContinue(); // wait for OK click
+
+            // Save state
+            GameManager.Instance.playerHP = _player1Entity.CurrentHP;
+            GameManager.Instance.playerPrefabName = Player1Prefab.name;
+            GameManager.Instance.recruitedParty.Clear();
+
+            void SaveIfValid(Character c, GameObject prefab)
+            {
+                if (c == null)
+                {
+                    Debug.LogWarning("Tried to save a null character!");
+                    return;
+                }
+
+                if (prefab == null)
+                {
+                    Debug.LogWarning($"Tried to save a character with null prefab! Character: {c.CharacterName}");
+                    return;
+                }
+
+                // Now safe to use both
+                Debug.Log($"Saving to recruited party: {prefab.name} | HP: {c.CurrentHP}");
+
+                if (c.IsPlayerControlled && c != _player1Entity)
+                {
+                    GameManager.Instance.recruitedParty.Add(new PartyMemberData(prefab.name, c.CurrentHP));
+                }
+                else
+                {
+                    Debug.LogWarning($"Skipped saving: {c.CharacterName} did not meet criteria.");
+                }
+            }
+
+            SaveIfValid(_player2Entity, Player2Prefab);
+            SaveIfValid(_player3Entity, Player3Prefab);
+            SaveIfValid(_player4Entity, Player4Prefab);
+
+            GameManager.Instance.LoadNextStage();
         }
         else if (State == BattleState.LOST)
         {
-            dialogue.text = "You lost the battle!";
+            dialogue.text = "You have fallen...";
+            yield return WaitForContinue(); // ⏳ wait for OK click
+            GameManager.Instance.RestartGame();
         }
+    }
+
+    private IEnumerator WaitForContinue()
+    {
+        continuePressed = false;
+        continueButton.gameObject.SetActive(true);
+        
+        EventSystem.current.SetSelectedGameObject(continueButton.gameObject);
+        continueButton.onClick.RemoveAllListeners();
+        continueButton.onClick.AddListener(() => continuePressed = true);
+
+        // Wait until the flag is true
+        yield return new WaitUntil(() => continuePressed);
+
+        continueButton.gameObject.SetActive(false);
     }
 
     void PlayerTurn()
@@ -399,16 +513,24 @@ public class BattleManager : MonoBehaviour
         HideSubmenu();
         actButton.gameObject.SetActive(false);
 
+        // If the main player is dead, force game over
+        if (_player1Entity == null || !_player1Entity.IsAlive)
+        {
+            State = BattleState.LOST;
+            StartCoroutine(EndBattle());
+            return;
+        }
+
         if (enemyDied)
         {
             if (_enemyEntity != null)
             {
-                Destroy(_enemyEntity.gameObject); // or use SetActive(false) if you prefer
+                Destroy(_enemyEntity.gameObject);
                 _enemyEntity = null;
             }
 
             State = BattleState.WON;
-            EndBattle();
+            StartCoroutine(EndBattle());
         }
         else
         {
@@ -549,22 +671,28 @@ public class BattleManager : MonoBehaviour
             player2HUD.HUD.SetActive(true);
             enemy.HUD = player2HUD;
             enemy.transform.position = Player2Battlestation.position;
-        }
-        else if (_player3Entity == null)
+
+            // Save prefab name to match later
+            Debug.Log($"Saving recruited prefab as: {enemy.PrefabName}");
+            Player2Prefab = Resources.Load<GameObject>($"Characters/{enemy.PrefabName}");
+        }else if(_player3Entity == null)
         {
             _player3Entity = enemy;
             playerParty.Add(enemy);
             player3HUD.HUD.SetActive(true);
             enemy.HUD = player3HUD;
             enemy.transform.position = Player3Battlestation.position;
-        }
-        else if (_player4Entity == null)
+            // Save prefab name to match later
+            Player3Prefab = Resources.Load<GameObject>($"Characters/{enemy.PrefabName}");
+        }else if(_player4Entity == null)
         {
             _player4Entity = enemy;
             playerParty.Add(enemy);
             player4HUD.HUD.SetActive(true);
             enemy.HUD = player4HUD;
             enemy.transform.position = Player4Battlestation.position;
+            // Save prefab name to match later
+            Player4Prefab = Resources.Load<GameObject>($"Characters/{enemy.PrefabName}");
         }
         else
         {
@@ -585,7 +713,7 @@ public class BattleManager : MonoBehaviour
         if (_enemyEntity == null)
         {
             State = BattleState.WON;
-            EndBattle();
+            yield return StartCoroutine(EndBattle()); // properly wait for it
         }
         else
         {
@@ -603,7 +731,9 @@ public class BattleManager : MonoBehaviour
         {
             State = BattleState.LOST;
             dialogue.text = "You have fallen...";
-            EndBattle();
+            
+            MusicSource.Stop();
+
             return;
         }
 

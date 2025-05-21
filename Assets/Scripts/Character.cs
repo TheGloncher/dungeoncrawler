@@ -5,12 +5,25 @@ using UnityEngine;
 public class Character : MonoBehaviour
 {
     public string CharacterName = "Georgie"; // Default name
-    public int MaxHP = 10; // Default HP
+    public int MaxHP = 100; // Default HP
     public int CurrentHP = 10; // Default HP
     public int Speed = 5; // Default speed
-    public bool IsPlayerControlled = false; // true for the main player or recruited allies
-    public bool IsEnemy = false;             // false if recruited
+    [SerializeField] private bool _isPlayerControlled = false;
+    [SerializeField] private bool _isEnemy = true;
+
+    public bool IsPlayerControlled
+    {
+        get => _isPlayerControlled;
+        set => _isPlayerControlled = value;
+    }
+
+    public bool IsEnemy
+    {
+        get => _isEnemy;
+        set => _isEnemy = value;
+    }
     public BattleHUD HUD;
+    public string PrefabName; // set by spawner when instantiated
 
     public GameObject FloatingTextPrefab; // Drag your prefab here in the inspector
     private ScreenShake _shake; // Reference to the ScreenShake component

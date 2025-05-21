@@ -1,7 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class HedgehogCharacter : Character
@@ -9,6 +7,7 @@ public class HedgehogCharacter : Character
     private int _approachCount = 0;
     private bool _approached = false;
     private bool _hasBeenAttacked = false;
+    private bool _pacified = false;
     [SerializeField] private AudioClip _approachSfx;
     [SerializeField] private AudioClip _impaleSfx;
 
@@ -105,7 +104,7 @@ public class HedgehogCharacter : Character
         {
             return new List<string> { "Get closer again" , "'I won't hurt you, so don't hurt me.'"};
         }
-        else
+        else 
         {
             return new List<string> { "Get closer again." };
         }
@@ -119,45 +118,47 @@ public class HedgehogCharacter : Character
         {
             if (optionIndex == 0)
             {
-                Manager.dialogue.text = "It's still walking towards you..."; _approachCount++;
+                Manager.dialogue.text = "It's still walking towards you...";
+                _approachCount++;
             }
-
             else if (optionIndex == 1)
             {
                 Manager.dialogue.text = "The spines quiver...";
                 _approached = true;
             }
         }
+        else if (_pacified && !_hasBeenAttacked)
+        {
+            if (optionIndex == 0)
+            {
+                Manager.dialogue.text = "It allows you to get closer to it.";
+                Manager.StartCoroutine(DelayedRecruitment());
+            }
+        }
         else if (!_hasBeenAttacked)
         {
-
             if (optionIndex == 0)
             {
                 Manager.dialogue.text = "You are impaled on the spikes.";
                 speaker.TakeDamage(9, this);
-
+                Manager.AudioSource.PlayOneShot(_impaleSfx);
             }
             else if (optionIndex == 1)
             {
                 Manager.dialogue.text = "The spikes retract slowly...";
-                Manager.StartCoroutine(DelayedRecruitment());
-
+                _pacified = true;
             }
-
-
         }
-        else
+        else if (!_pacified)
         {
             if (optionIndex == 0)
             {
                 Manager.dialogue.text = "You are impaled on the spikes.";
                 speaker.TakeDamage(9, this);
             }
-
         }
     }
-
-        private IEnumerator DelayedRecruitment()
+    private IEnumerator DelayedRecruitment()
     {
         yield return new WaitForSeconds(2f);
         Manager.RecruitEnemy(this);
