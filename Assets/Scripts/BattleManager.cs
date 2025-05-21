@@ -58,6 +58,13 @@ public class BattleManager : MonoBehaviour
     private bool dialogueResolved = false;
     public bool IsAwaitingDialogue => DialogueButtons.Exists(b => b.gameObject.activeSelf) && !dialogueResolved;
 
+    private bool isRecruiting = false;
+
+    public AudioSource AudioSource;
+    public AudioClip DeathSfx;
+
+
+
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -66,6 +73,13 @@ public class BattleManager : MonoBehaviour
         State = BattleState.START;
         StartCoroutine(SetupBattle());
         
+    }
+
+    //method that locks the cursor and hides the cursor
+    private void Awake()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     IEnumerator SetupBattle()
@@ -151,6 +165,21 @@ public class BattleManager : MonoBehaviour
 
 
     }
+    public Character GetRandomAlivePlayer()
+    {
+        List<Character> alivePlayers = new List<Character>();
+
+        foreach (var player in playerParty)
+        {
+            if (player.IsAlive)
+                alivePlayers.Add(player);
+        }
+
+        if (alivePlayers.Count == 0)
+            return null;
+
+        return alivePlayers[UnityEngine.Random.Range(0, alivePlayers.Count)];
+    }
     public Character GetLowestHPPlayer()
     {
         List<Character> lowestHPPlayers = new List<Character>();
@@ -204,6 +233,7 @@ public class BattleManager : MonoBehaviour
         {
             State = BattleState.ENEMYTURN;
             actButton.gameObject.SetActive(false);
+            ResetHighlight();
             StartCoroutine(EnemyTurn()); //currentCharacter
         }
         Debug.Log("TURN ORDER:");
@@ -371,6 +401,12 @@ public class BattleManager : MonoBehaviour
 
         if (enemyDied)
         {
+            if (_enemyEntity != null)
+            {
+                Destroy(_enemyEntity.gameObject); // or use SetActive(false) if you prefer
+                _enemyEntity = null;
+            }
+
             State = BattleState.WON;
             EndBattle();
         }
@@ -490,10 +526,114 @@ public class BattleManager : MonoBehaviour
     private IEnumerator EndTalkTurn()
     {
         yield return new WaitForSeconds(2f);
-        dialogue.text = "";
-        OnActionComplete(false);
-
+       
+        // Don't end the turn if a recruitment is still in progress
+        if (!isRecruiting)
+            OnActionComplete(false);
     }
+
+    public void RecruitEnemy(Character enemy)
+    {
+        StartCoroutine(HandleRecruitment(enemy));
+    }
+
+    private IEnumerator HandleRecruitment(Character enemy)
+    {
+        isRecruiting = true;
+        dialogue.text = $"You have recruited {enemy.CharacterName}!";
+
+        if (_player2Entity == null)
+        {
+            _player2Entity = enemy;
+            playerParty.Add(enemy);
+            player2HUD.HUD.SetActive(true);
+            enemy.HUD = player2HUD;
+            enemy.transform.position = Player2Battlestation.position;
+        }
+        else if (_player3Entity == null)
+        {
+            _player3Entity = enemy;
+            playerParty.Add(enemy);
+            player3HUD.HUD.SetActive(true);
+            enemy.HUD = player3HUD;
+            enemy.transform.position = Player3Battlestation.position;
+        }
+        else if (_player4Entity == null)
+        {
+            _player4Entity = enemy;
+            playerParty.Add(enemy);
+            player4HUD.HUD.SetActive(true);
+            enemy.HUD = player4HUD;
+            enemy.transform.position = Player4Battlestation.position;
+        }
+        else
+        {
+            dialogue.text = "You don't have room for more allies.";
+            yield return new WaitForSeconds(2f);
+            isRecruiting = false;
+            OnActionComplete(false);
+            yield break;
+        }
+
+        enemy.HUD.SetHUD(enemy);
+        enemy.IsPlayerControlled = true;
+        enemy.IsEnemy = false;
+        _enemyEntity = null;
+
+        yield return new WaitForSeconds(2f);
+
+        if (_enemyEntity == null)
+        {
+            State = BattleState.WON;
+            EndBattle();
+        }
+        else
+        {
+            OnActionComplete(false);
+        }
+
+        isRecruiting = false;
+    }
+
+    public void HandleCharacterDeath(Character character)
+    {
+        
+        AudioSource.PlayOneShot(DeathSfx);
+        if (character == _player1Entity)
+        {
+            State = BattleState.LOST;
+            dialogue.text = "You have fallen...";
+            EndBattle();
+            return;
+        }
+
+        // Remove from party and HUD
+        if (character == _player2Entity)
+        {
+            player2HUD.HUD.SetActive(false);
+            playerParty.Remove(_player2Entity);
+            Destroy(_player2Entity.gameObject); // destroy or deactivate
+            _player2Entity = null;
+        }
+        else if (character == _player3Entity)
+        {
+            player3HUD.HUD.SetActive(false);
+            playerParty.Remove(_player3Entity);
+            Destroy(_player3Entity.gameObject);
+            _player3Entity = null;
+        }
+        else if (character == _player4Entity)
+        {
+            player4HUD.HUD.SetActive(false);
+            playerParty.Remove(_player4Entity);
+            Destroy(_player4Entity.gameObject);
+            _player4Entity = null;
+        }
+
+        dialogue.text = $"{character.CharacterName} has fallen...";
+    }
+
+
 
 
 

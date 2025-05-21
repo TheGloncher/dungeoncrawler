@@ -31,22 +31,27 @@ public class Character : MonoBehaviour
 
     public virtual bool TakeDamage(int amount, Character attacker)
     {
-        CurrentHP = CurrentHP - amount;
+        CurrentHP -= amount;
 
-        _shake.TriggerShake(amount*0.15f); // shake the screen a little bit
+        _shake?.TriggerShake(amount * 0.15f);
 
         if (HUD != null)
-            HUD.Shake(amount); //stronger the more damage
+            HUD.Shake(amount);
 
         SpawnFloatingText(amount);
 
-        if (CurrentHP <= 0)
-            return true;
-        else
-            return false;
+        //update the HUD
+        if (HUD != null)
+            HUD.SetHUD(this);
+
+        bool isDead = CurrentHP <= 0;
 
 
 
+        if (Manager != null && isDead)
+            Manager.HandleCharacterDeath(this); //  Handle death right here
+
+        return isDead;
     }
 
     public void SpawnFloatingText(int damage)
@@ -69,6 +74,13 @@ public class Character : MonoBehaviour
     public virtual List<string> GetDialogueOptions()
     {
         return new List<string>();
+    }
+
+    protected IEnumerator Pass(BattleManager manager)
+    {
+        manager.dialogue.text = $"{CharacterName} waits.";
+        yield return new WaitForSeconds(1.5f);
+        manager.OnActionComplete(false);
     }
 
 

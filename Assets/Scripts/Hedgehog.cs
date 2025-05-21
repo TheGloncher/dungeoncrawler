@@ -1,26 +1,33 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class HedgehogCharacter : Character
 {
-    private int approachCount = 0;
-    private bool approached = false;
-    private bool hasBeenAttacked = false;
+    private int _approachCount = 0;
+    private bool _approached = false;
+    private bool _hasBeenAttacked = false;
+    [SerializeField] private AudioClip _approachSfx;
+    [SerializeField] private AudioClip _impaleSfx;
 
     public override List<CharacterAction> GetActions(BattleManager manager)
     {
-        return new List<CharacterAction>
-    {
-        new CharacterAction("Approach", () => Approach(manager))
-    };
+        var actions = new List<CharacterAction>();
+
+        actions.Add(new CharacterAction("Approach", () => Approach(manager)));
+
+        if (IsPlayerControlled)
+            actions.Add(new CharacterAction("Pass", () => Pass(manager)));
+
+        return actions;
     }
 
 
     private IEnumerator Approach(BattleManager manager)
     {
-        Character target = IsPlayerControlled ? manager.GetEnemy() : manager.GetLowestHPPlayer();
+        Character target = IsPlayerControlled ? manager.GetEnemy() : manager.GetRandomAlivePlayer();
 
         if (target == null)
         {
@@ -28,14 +35,14 @@ public class HedgehogCharacter : Character
             yield break;
         }
 
-        approachCount++;
+        _approachCount++;
 
-        if (approachCount < 4)
+        if (_approachCount < 4)
         {
-            switch (approachCount)
+            switch (_approachCount)
             {
                 case 1:
-                    manager.dialogue.text = "It's making its way to you from the distance.";
+                    manager.dialogue.text = "It's making its way from the distance...";
                     break;
                 case 2:
                     manager.dialogue.text = "It's growing closer...";
@@ -44,8 +51,15 @@ public class HedgehogCharacter : Character
                     manager.dialogue.text = "It's right in front of " + target.CharacterName;
                     break;
             }
+            Manager.AudioSource.volume = 0.2f * _approachCount;
+            Manager.AudioSource.PlayOneShot(_approachSfx);
+            yield return new WaitForSeconds(2.4f);
+            //return volume to normal
+            Manager.AudioSource.volume = 1f;
 
-            yield return new WaitForSeconds(2f);
+
+
+
             manager.OnActionComplete(false);
         }
         else
@@ -54,6 +68,7 @@ public class HedgehogCharacter : Character
             yield return new WaitForSeconds(1f);
 
             bool isDead = target.TakeDamage(9, this);
+            Manager.AudioSource.PlayOneShot(_impaleSfx);
             manager.UpdateHUDForCharacter(target);
             yield return new WaitForSeconds(1f);
 
@@ -64,7 +79,7 @@ public class HedgehogCharacter : Character
     public override bool TakeDamage(int amount, Character attacker)
     {
         bool isDead = base.TakeDamage(amount, attacker);
-        hasBeenAttacked = true;
+        _hasBeenAttacked = true;
 
         if (attacker != null && attacker != this && attacker.IsAlive && !isDead)
         {
@@ -76,19 +91,19 @@ public class HedgehogCharacter : Character
 
         // Retaliate only if attacker is valid and still alive
 
-
+        Manager.UpdateHUDForCharacter(this); // update the hedgehog's HUD
         return isDead;
     }
 
     public override List<string> GetDialogueOptions()
     {
-        if(!approached)
+        if(!_approached)
         {
-            return new List<string> { "Get away from me.", "Get closer." };
+            return new List<string> { "'Get away from me.'", "Get closer." };
         }
-        else if(!hasBeenAttacked)
+        else if(!_hasBeenAttacked)
         {
-            return new List<string> { "Get closer again" , "I won't hurt you, so don't hurt me."};
+            return new List<string> { "Get closer again" , "'I won't hurt you, so don't hurt me.'"};
         }
         else
         {
@@ -100,13 +115,59 @@ public class HedgehogCharacter : Character
 
     public override void OnTalk(Character speaker, int optionIndex)
     {
-        if (optionIndex == 0)
-            Manager.dialogue.text = "The hedgehog growls.";
-        else if (optionIndex == 1)
-            Manager.dialogue.text = "It seems confused...";
+        if (!_approached)
+        {
+            if (optionIndex == 0)
+            {
+                Manager.dialogue.text = "It's still walking towards you..."; _approachCount++;
+            }
 
+            else if (optionIndex == 1)
+            {
+                Manager.dialogue.text = "The spines quiver...";
+                _approached = true;
+            }
+        }
+        else if (!_hasBeenAttacked)
+        {
+
+            if (optionIndex == 0)
+            {
+                Manager.dialogue.text = "You are impaled on the spikes.";
+                speaker.TakeDamage(9, this);
+
+            }
+            else if (optionIndex == 1)
+            {
+                Manager.dialogue.text = "The spikes retract slowly...";
+                Manager.StartCoroutine(DelayedRecruitment());
+
+            }
+
+
+        }
+        else
+        {
+            if (optionIndex == 0)
+            {
+                Manager.dialogue.text = "You are impaled on the spikes.";
+                speaker.TakeDamage(9, this);
+            }
+
+        }
+    }
+
+        private IEnumerator DelayedRecruitment()
+    {
+        yield return new WaitForSeconds(2f);
+        Manager.RecruitEnemy(this);
         
     }
 
 
-    }
+
+
+}
+
+
+    

@@ -1,20 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using static UnityEngine.GraphicsBuffer;
 
 public class Player : Character
 {
-
+    [SerializeField] private AudioClip _strikeSfx;
+    [SerializeField] private AudioClip _talkSfx;
     public override List<CharacterAction> GetActions(BattleManager manager)
     {
-        
+       
 
-        return new List<CharacterAction>
-        {
-            new CharacterAction("Strike", () => Strike(manager)),
-            new CharacterAction("Talk", () => Talk(manager))
-        };
+        var actions = new List<CharacterAction>();
+
+        // Add custom character-specific actions
+        actions.Add(new CharacterAction("Strike", () => Strike(manager)));
+        actions.Add(new CharacterAction("Talk", () => Talk(manager)));
+
+        // Add Pass only if player-controlled
+        if (IsPlayerControlled)
+            actions.Add(new CharacterAction("Pass", () => Pass(manager)));
+
+        return actions;
     }
 
 
@@ -36,6 +44,7 @@ public class Player : Character
         }
 
         bool isDead = target.TakeDamage(3, this);
+        Manager.AudioSource.PlayOneShot(_strikeSfx);
         manager.UpdateHUDForCharacter(target);
         manager.dialogue.text = $"{CharacterName} strikes!";
 
@@ -58,6 +67,7 @@ public class Player : Character
 
         List<string> options = target.GetDialogueOptions();
         Debug.Log("Dialogue options count: " + options.Count);
+        Manager.AudioSource.PlayOneShot(_talkSfx);
         manager.ShowDialogueOptions(options, this);
 
         // Wait for the dialogue selection to complete via BattleManager

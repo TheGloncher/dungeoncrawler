@@ -54,6 +54,8 @@ MonoBehaviour:
   IsEnemy: 1
   HUD: {fileID: 0}
   FloatingTextPrefab: {fileID: 3529482038726998961, guid: b7832780c8982c14aa2331cb4e5e774c, type: 3}
+  _approachSfx: {fileID: 8300000, guid: d7258e5269cb5bf49a75c8ce33efa066, type: 3}
+  _impaleSfx: {fileID: 8300000, guid: 88e90aa0bfa1a8c4791857300050a902, type: 3}
 --- !u!114 &6044005407769422314
 MonoBehaviour:
   m_ObjectHideFlags: 0
