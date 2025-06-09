@@ -497,8 +497,12 @@ public class BattleManager : MonoBehaviour
             EventSystem.current.SetSelectedGameObject(ActionButtons[0].gameObject);
     }
 
-    public Character GetEnemy()
+    public Character GetEnemy(Character caller = null)
     {
+        // If Actor is asking for an enemy, and it's itself, return someone else
+        if (caller is Actor actor && _enemyEntity == actor)
+            return GetRandomAlivePlayer();
+
         return _enemyEntity;
     }
 
@@ -661,6 +665,10 @@ public class BattleManager : MonoBehaviour
 
     private IEnumerator HandleRecruitment(Character enemy)
     {
+        if(enemy is Actor actor)
+        {
+            actor.ResetToNormal(); //actor loses its fabricated actions
+        }
         isRecruiting = true;
         dialogue.text = $"You have recruited {enemy.CharacterName}!";
 

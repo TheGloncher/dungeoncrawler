@@ -48,6 +48,8 @@ public class Character : MonoBehaviour
 
         _shake?.TriggerShake(amount * 0.15f);
 
+        if (_shake == null)
+            Debug.LogWarning($"{CharacterName} has no ScreenShake assigned!");
         if (HUD != null)
             HUD.Shake(amount);
 

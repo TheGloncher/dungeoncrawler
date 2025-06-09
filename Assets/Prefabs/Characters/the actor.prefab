@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2027691605613196684}
   - component: {fileID: 8568293481413813687}
+  - component: {fileID: 8448975693660653376}
+  - component: {fileID: 4293326486661398817}
   m_Layer: 0
   m_Name: the actor
   m_TagString: Untagged
@@ -26,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 2967503686855102805}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.002, y: 1.14, z: 0}
+  m_LocalPosition: {x: 0, y: 1.115, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -76,7 +78,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 3863cce6a58e4d3428325c5a8de9cf42, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 58edc10f8d574f94dbb664ca7042b00a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -87,3 +89,62 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &8448975693660653376
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2967503686855102805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8f6c27babd1f1f49a93ecf801eabfdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CharacterName: Actor
+  MaxHP: 20
+  CurrentHP: 20
+  Speed: 3
+  _isPlayerControlled: 0
+  _isEnemy: 1
+  HUD: {fileID: 0}
+  PrefabName: 
+  FloatingTextPrefab: {fileID: 3529482038726998961, guid: b7832780c8982c14aa2331cb4e5e774c, type: 3}
+--- !u!114 &4293326486661398817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2967503686855102805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4f993901eb6b0842aabacc38e1c68c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  duration: 1
+  curve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0.009132385
+      value: 0.49178314
+      inSlope: -0.48608553
+      outSlope: -0.48608553
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.99087524
+      value: 0.014572144
+      inSlope: -0.48608553
+      outSlope: -0.48608553
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  start: 0
