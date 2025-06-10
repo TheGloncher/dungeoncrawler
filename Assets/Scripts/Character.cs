@@ -118,11 +118,31 @@ public class Character : MonoBehaviour
     public void Condemn()
     {
         IsCondemned = true;
+        //change the color of the character to indicate condemnation
+        Renderer renderer = GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            renderer.material.color = Color.blue; // Change to red to indicate condemnation
+        }
+        else
+        {
+            Debug.LogWarning($"{CharacterName} has no Renderer component to change color.");
+        }
     }
 
     public void ClearCondemn()
     {
         IsCondemned = false;
+        // Reset the color of the character to normal
+        Renderer renderer = GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            renderer.material.color = Color.white; // Reset to white or original color
+        }
+        else
+        {
+            Debug.LogWarning($"{CharacterName} has no Renderer component to reset color.");
+        }
     }
 
     public bool IsAlive => CurrentHP > 0;

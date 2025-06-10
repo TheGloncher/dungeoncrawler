@@ -105,6 +105,7 @@ public class BattleManager : MonoBehaviour
 
         playerParty.Clear();
         playerParty.Add(_player1Entity);
+        _player1Entity.ClearCondemn(); // Reset any lingering Condemned stat
 
         // ✅ Now load allies from GameManager.recruitedParty
         Transform[] stations = { Player2Battlestation, Player3Battlestation, Player4Battlestation };
@@ -125,6 +126,7 @@ public class BattleManager : MonoBehaviour
 
             GameObject ally = Instantiate(prefab, stations[i]);
             Character allyChar = ally.GetComponent<Character>();
+            allyChar.ClearCondemn(); // Reset any lingering Condemned stat
 
 
 
@@ -169,6 +171,7 @@ public class BattleManager : MonoBehaviour
 
         GameObject enemy = Instantiate(EnemyPrefab, EnemyBattlestation);
         _enemyEntity = enemy.GetComponent<Character>(); // get Character first
+        _enemyEntity.ClearCondemn(); // Reset any lingering Condemned stat
         if (_enemyEntity is Actor actor)
         {
             actor.ResetToNormal();
@@ -808,6 +811,11 @@ public class BattleManager : MonoBehaviour
         }
 
         return lowest;
+    }
+
+    public List<Character> GetPlayerParty()
+    {
+        return playerParty;
     }
 
 
