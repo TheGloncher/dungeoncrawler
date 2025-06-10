@@ -15,26 +15,24 @@ public class Player : Character
         var actions = new List<CharacterAction>();
 
         // Add custom character-specific actions
-        actions.Add(new CharacterAction("Strike", () => Strike(manager)));
-        actions.Add(new CharacterAction("Talk", () => Talk(manager)));
+        actions.Add(new CharacterAction("Strike", (self) => Strike(manager, self)));
+        actions.Add(new CharacterAction("Talk", (self) => Talk(manager, self)));
 
         // Add Pass only if player-controlled
         if (IsPlayerControlled)
-            actions.Add(new CharacterAction("Pass", () => Pass(manager)));
+            actions.Add(new CharacterAction("Pass", (self) => Pass(manager, self)));
 
         return actions;
     }
 
 
 
-    private IEnumerator Strike(BattleManager manager)
+    private IEnumerator Strike(BattleManager manager, Character self)
     {
-        Character target;
+        Character target = self.IsPlayerControlled ? manager.GetEnemy(self) : manager.GetLowestHPPlayer();
+        
 
-        if (IsPlayerControlled)
-            target = manager.GetEnemy();
-        else
-            target = manager.GetLowestHPPlayer();
+        
 
         if (target == null)
         {
@@ -46,14 +44,14 @@ public class Player : Character
         bool isDead = target.TakeDamage(3, this);
         Manager.AudioSource.PlayOneShot(_strikeSfx);
         manager.UpdateHUDForCharacter(target);
-        manager.dialogue.text = $"{CharacterName} strikes!";
+        manager.dialogue.text = $"{self.CharacterName} strikes!";
 
         yield return new WaitForSeconds(2f);
 
         manager.OnActionComplete(isDead);
     }
 
-    private IEnumerator Talk(BattleManager manager)
+    private IEnumerator Talk(BattleManager manager, Character self)
     {
         Debug.Log("Talk action initiated.");
         Character target = IsPlayerControlled ? manager.GetEnemy() : manager.GetLowestHPPlayer();

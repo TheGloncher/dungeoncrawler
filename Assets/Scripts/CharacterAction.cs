@@ -6,11 +6,16 @@ using UnityEngine;
 public class CharacterAction
 {
     public string actionName;
-    public Func<IEnumerator> coroutineCallback;  // Coroutine-compatible
+    public Func<Character, IEnumerator> coroutineWithUser;
 
-    public CharacterAction(string name, Func<IEnumerator> coroutineCallback)
+    public CharacterAction(string name, Func<Character, IEnumerator> callback)
     {
-        this.actionName = name;
-        this.coroutineCallback = coroutineCallback;
+        actionName = name;
+        coroutineWithUser = callback;
+    }
+
+    public IEnumerator Invoke(Character user)
+    {
+        return coroutineWithUser(user);
     }
 }

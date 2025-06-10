@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 public class Character : MonoBehaviour
 {
@@ -10,6 +12,8 @@ public class Character : MonoBehaviour
     public int Speed = 5; // Default speed
     [SerializeField] private bool _isPlayerControlled = false;
     [SerializeField] private bool _isEnemy = true;
+    [SerializeField] private AudioClip _recruited;
+    
 
     public bool IsPlayerControlled
     {
@@ -91,11 +95,20 @@ public class Character : MonoBehaviour
         return new List<string>();
     }
 
-    protected IEnumerator Pass(BattleManager manager)
+    protected IEnumerator Pass(BattleManager manager, Character self)
     {
+
         manager.dialogue.text = $"{CharacterName} waits.";
         yield return new WaitForSeconds(1.5f);
         manager.OnActionComplete(false);
+    }
+
+    protected IEnumerator DelayedRecruitment()
+    {
+        yield return new WaitForSeconds(2f);
+        Manager.AudioSource.PlayOneShot(_recruited);
+        Manager.RecruitEnemy(this);
+
     }
 
 

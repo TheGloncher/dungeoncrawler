@@ -77,8 +77,12 @@ public class BattleManager : MonoBehaviour
     void Start()
     {
         State = BattleState.START;
+
+        // Try to re-link button from current scene, if needed
+        if (actButton == null)
+            actButton = GameObject.Find("ActButton")?.GetComponent<Button>();
+
         StartCoroutine(SetupBattle());
-        
     }
 
     //method that locks the cursor and hides the cursor
@@ -165,6 +169,10 @@ public class BattleManager : MonoBehaviour
 
         GameObject enemy = Instantiate(EnemyPrefab, EnemyBattlestation);
         _enemyEntity = enemy.GetComponent<Character>(); // get Character first
+        if (_enemyEntity is Actor actor)
+        {
+            actor.ResetToNormal();
+        }
         _enemyEntity.PrefabName = EnemyPrefab.name;    // now safe to access
 
         _player1Entity.HUD = player1HUD;
@@ -341,7 +349,7 @@ public class BattleManager : MonoBehaviour
         moveSign.SetActive(false);
 
         //  Directly yield the coroutine
-        yield return StartCoroutine(selectedAction.coroutineCallback());
+        StartCoroutine(selectedAction.Invoke(currentCharacter));
     }
 
     public void UpdateHUDForCharacter(Character character)
@@ -515,7 +523,8 @@ public class BattleManager : MonoBehaviour
     {
         Debug.Log("OnActionComplete was called. Enemy died? " + enemyDied);
         HideSubmenu();
-        actButton.gameObject.SetActive(false);
+        if (actButton != null)
+            actButton.gameObject.SetActive(false);
 
         // If the main player is dead, force game over
         if (_player1Entity == null || !_player1Entity.IsAlive)
@@ -545,8 +554,10 @@ public class BattleManager : MonoBehaviour
     public void HideSubmenu()
     {
         foreach (var btn in ActionButtons)
-            btn.gameObject.SetActive(false);
-
+        {
+            if (btn != null)
+                btn.gameObject.SetActive(false);
+        }
     }
 
     private IEnumerator ExecutePlayerAction(CharacterAction action)
@@ -560,7 +571,7 @@ public class BattleManager : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
         moveSign.SetActive(false);
 
-        yield return StartCoroutine(action.coroutineCallback());
+        StartCoroutine(action.Invoke(currentCharacter));
     }
 
     public void ShowDialogueOptions(List<string> options, Character speaker)

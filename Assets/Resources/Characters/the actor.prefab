@@ -107,9 +107,12 @@ MonoBehaviour:
   Speed: 3
   _isPlayerControlled: 0
   _isEnemy: 1
+  _recruited: {fileID: 0}
   HUD: {fileID: 0}
   PrefabName: 
   FloatingTextPrefab: {fileID: 3529482038726998961, guid: b7832780c8982c14aa2331cb4e5e774c, type: 3}
+  _fabricateSfx: {fileID: 8300000, guid: 821762e551f97054b8e280af15d50b96, type: 3}
+  _impaleSfx: {fileID: 8300000, guid: 88e90aa0bfa1a8c4791857300050a902, type: 3}
 --- !u!114 &4293326486661398817
 MonoBehaviour:
   m_ObjectHideFlags: 0

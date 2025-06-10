@@ -15,18 +15,18 @@ public class HedgehogCharacter : Character
     {
         var actions = new List<CharacterAction>();
 
-        actions.Add(new CharacterAction("Approach", () => Approach(manager)));
+        actions.Add(new CharacterAction("Approach", (self) => Approach(manager, self)));
 
         if (IsPlayerControlled)
-            actions.Add(new CharacterAction("Pass", () => Pass(manager)));
+            actions.Add(new CharacterAction("Pass", (self) => Pass(manager, self)));
 
         return actions;
     }
 
 
-    private IEnumerator Approach(BattleManager manager)
+    private IEnumerator Approach(BattleManager manager, Character self)
     {
-        Character target = IsPlayerControlled ? manager.GetEnemy() : manager.GetRandomAlivePlayer();
+        Character target = self.IsPlayerControlled ? manager.GetEnemy(self) : manager.GetLowestHPPlayer();
 
         if (target == null)
         {
@@ -157,13 +157,16 @@ public class HedgehogCharacter : Character
                 speaker.TakeDamage(9, this);
             }
         }
+        else
+        {
+            if (optionIndex == 0)
+            {
+                Manager.dialogue.text = "You are impaled on the spikes.";
+                speaker.TakeDamage(9, this);
+            }
+        }
     }
-    private IEnumerator DelayedRecruitment()
-    {
-        yield return new WaitForSeconds(2f);
-        Manager.RecruitEnemy(this);
-        
-    }
+
 
 
 
