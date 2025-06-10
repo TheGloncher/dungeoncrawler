@@ -13,7 +13,8 @@ public class Character : MonoBehaviour
     [SerializeField] private bool _isPlayerControlled = false;
     [SerializeField] private bool _isEnemy = true;
     [SerializeField] private AudioClip _recruited;
-    
+    public bool IsCondemned { get; set; } = false; // Used to track if the character is condemned
+
 
     public bool IsPlayerControlled
     {
@@ -48,6 +49,9 @@ public class Character : MonoBehaviour
 
     public virtual bool TakeDamage(int amount, Character attacker)
     {
+        if (IsCondemned)
+            amount += 2;
+
         CurrentHP -= amount;
 
         _shake?.TriggerShake(amount * 0.15f);
@@ -111,6 +115,15 @@ public class Character : MonoBehaviour
 
     }
 
+    public void Condemn()
+    {
+        IsCondemned = true;
+    }
+
+    public void ClearCondemn()
+    {
+        IsCondemned = false;
+    }
 
     public bool IsAlive => CurrentHP > 0;
 

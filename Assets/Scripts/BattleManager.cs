@@ -782,7 +782,33 @@ public class BattleManager : MonoBehaviour
         dialogue.text = $"{character.CharacterName} has fallen...";
     }
 
+    public Character GetCondemnedEnemy()
+    {
+        if (_enemyEntity != null && _enemyEntity.IsCondemned)
+            return _enemyEntity;
 
+        return null;
+    }
+
+    public Character GetLowestHPCondemnedPlayer()
+    {
+        Character lowest = null;
+        int lowestHP = int.MaxValue;
+
+        foreach (var player in playerParty)
+        {
+            if (!player.IsAlive || !player.IsCondemned)
+                continue;
+
+            if (player.CurrentHP < lowestHP)
+            {
+                lowestHP = player.CurrentHP;
+                lowest = player;
+            }
+        }
+
+        return lowest;
+    }
 
 
 

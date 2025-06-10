@@ -12,8 +12,6 @@ GameObject:
   - component: {fileID: 8568293481413813687}
   - component: {fileID: 8448975693660653376}
   - component: {fileID: 4293326486661398817}
-  - component: {fileID: 5921111580333086435}
-  - component: {fileID: -5654620828934145304}
   m_Layer: 0
   m_Name: the actor
   m_TagString: Untagged
@@ -153,51 +151,3 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   start: 0
---- !u!114 &5921111580333086435
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2967503686855102805}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24e1d57949b14e8498fc087a552d8f8f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CharacterName: Actor
-  MaxHP: 10
-  CurrentHP: 10
-  Speed: 3
-  _isPlayerControlled: 0
-  _isEnemy: 1
-  _recruited: {fileID: 0}
-  HUD: {fileID: 0}
-  PrefabName: 
-  FloatingTextPrefab: {fileID: 3529482038726998961, guid: b7832780c8982c14aa2331cb4e5e774c, type: 3}
-  _strikeSfx: {fileID: 8300000, guid: 0ba0313e522270543a65c6d9edb0c1a5, type: 3}
-  _talkSfx: {fileID: 8300000, guid: b6757ac5a33ac9a4c8a3e4465db31663, type: 3}
---- !u!114 &-5654620828934145304
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2967503686855102805}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9984ec987abdd4741986a0ffc729a12c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CharacterName: Actor
-  MaxHP: 10
-  CurrentHP: 10
-  Speed: 3
-  _isPlayerControlled: 0
-  _isEnemy: 1
-  _recruited: {fileID: 0}
-  HUD: {fileID: 0}
-  PrefabName: 
-  FloatingTextPrefab: {fileID: 3529482038726998961, guid: b7832780c8982c14aa2331cb4e5e774c, type: 3}
-  _approachSfx: {fileID: 8300000, guid: d7258e5269cb5bf49a75c8ce33efa066, type: 3}
-  _impaleSfx: {fileID: 8300000, guid: 88e90aa0bfa1a8c4791857300050a902, type: 3}
