@@ -6178,7 +6178,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   State: 0
-  EnemyPrefab: {fileID: 2967503686855102805, guid: 598aa25eb5b4f1c4b9c59237db542a5c, type: 3}
+  EnemyPrefab: {fileID: 969847342724929475, guid: 5689816e92df51141add054fe966f729, type: 3}
   Player1Prefab: {fileID: 3008271473601659216, guid: 042d390969576524da243fa2262ea136, type: 3}
   Player2Prefab: {fileID: 0}
   Player3Prefab: {fileID: 3008271473601659216, guid: 210a9397c4d4f3149a0e762520b78914, type: 3}

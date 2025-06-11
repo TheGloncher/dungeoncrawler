@@ -34,6 +34,14 @@ public class HedgehogCharacter : Character
             yield break;
         }
 
+        if (_pacified)
+        {
+            Manager.dialogue.text = "It has ceased moving towards you.";
+            yield return new WaitForSeconds(1.5f);
+            manager.OnActionComplete(false);
+            yield break;
+        }
+
         _approachCount++;
 
         if (_approachCount < 4)
@@ -124,6 +132,7 @@ public class HedgehogCharacter : Character
             else if (optionIndex == 1)
             {
                 Manager.dialogue.text = "The spines quiver...";
+                _approachCount++;
                 _approached = true;
             }
         }

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4956180732303077907}
   - component: {fileID: 6260881272796028040}
   - component: {fileID: 6044005407769422314}
+  - component: {fileID: 5501083203086223728}
   m_Layer: 0
   m_Name: Hedgehog
   m_TagString: Untagged
@@ -27,11 +28,10 @@ Transform:
   m_GameObject: {fileID: 969847342724929475}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1.116, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 3186242619803534490}
+  m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6260881272796028040
@@ -50,9 +50,11 @@ MonoBehaviour:
   MaxHP: 10
   CurrentHP: 10
   Speed: 5
-  IsPlayerControlled: 0
-  IsEnemy: 1
+  _isPlayerControlled: 0
+  _isEnemy: 1
+  _recruited: {fileID: 0}
   HUD: {fileID: 0}
+  PrefabName: 
   FloatingTextPrefab: {fileID: 3529482038726998961, guid: b7832780c8982c14aa2331cb4e5e774c, type: 3}
   _approachSfx: {fileID: 8300000, guid: d7258e5269cb5bf49a75c8ce33efa066, type: 3}
   _impaleSfx: {fileID: 8300000, guid: 88e90aa0bfa1a8c4791857300050a902, type: 3}
@@ -94,45 +96,13 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   start: 0
---- !u!1 &7997237514201472259
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3186242619803534490}
-  - component: {fileID: 3529303961789532248}
-  m_Layer: 0
-  m_Name: hedgehog
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3186242619803534490
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7997237514201472259}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.127, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 4956180732303077907}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &3529303961789532248
+--- !u!212 &5501083203086223728
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7997237514201472259}
+  m_GameObject: {fileID: 969847342724929475}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0

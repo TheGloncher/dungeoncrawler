@@ -16,6 +16,13 @@ public class GameManager : MonoBehaviour
             this.currentHP = currentHP;
         }
     }
+    private void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.R))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name); // Reload the current scene
+        }
+    }
 
     public static GameManager Instance;
 

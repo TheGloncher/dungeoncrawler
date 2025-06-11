@@ -102,8 +102,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CharacterName: Actor
-  MaxHP: 20
-  CurrentHP: 20
+  MaxHP: 5
+  CurrentHP: 5
   Speed: 3
   _isPlayerControlled: 0
   _isEnemy: 1

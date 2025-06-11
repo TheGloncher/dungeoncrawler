@@ -693,6 +693,7 @@ public class BattleManager : MonoBehaviour
             player2HUD.HUD.SetActive(true);
             enemy.HUD = player2HUD;
             enemy.transform.position = Player2Battlestation.position;
+            enemy.transform.position += new Vector3(0, 0.8f, 0); // raise it a bit above the battlestation
 
             // Save prefab name to match later
             Debug.Log($"Saving recruited prefab as: {enemy.PrefabName}");
@@ -816,6 +817,19 @@ public class BattleManager : MonoBehaviour
     public List<Character> GetPlayerParty()
     {
         return playerParty;
+    }
+
+    public List<Character> GetAllPlayers()
+    {
+        return new List<Character>(playerParty).FindAll(p => p.IsAlive);
+    }
+
+    public List<Character> GetAllEnemies()
+    {
+        List<Character> enemies = new();
+        if (_enemyEntity != null && _enemyEntity.IsAlive)
+            enemies.Add(_enemyEntity);
+        return enemies;
     }
 
 
