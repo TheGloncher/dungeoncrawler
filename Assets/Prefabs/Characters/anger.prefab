@@ -244,7 +244,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CharacterName: Anger
   MaxHP: 50
-  CurrentHP: 12
+  CurrentHP: 50
   Speed: 5
   _isPlayerControlled: 0
   _isEnemy: 1
