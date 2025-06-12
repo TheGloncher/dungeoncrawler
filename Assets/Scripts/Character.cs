@@ -31,7 +31,7 @@ public class Character : MonoBehaviour
     public string PrefabName; // set by spawner when instantiated
 
     public GameObject FloatingTextPrefab; // Drag your prefab here in the inspector
-    private ScreenShake _shake; // Reference to the ScreenShake component
+    protected ScreenShake _shake; // Reference to the ScreenShake component
 
     public BattleManager Manager { get; set; }
 

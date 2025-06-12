@@ -189,7 +189,7 @@ public class BattleManager : MonoBehaviour
         if (_player3Entity != null) _player3Entity.Manager = this;
         if (_player4Entity != null) _player4Entity.Manager = this;
         _enemyEntity.Manager = this;
-        _player1Entity.CurrentHP = GameManager.Instance.playerHP;
+        
 
         dialogue.text = "The " + _enemyEntity.CharacterName + " approaches.";
 
@@ -419,7 +419,7 @@ public class BattleManager : MonoBehaviour
         }
     }
 
-    private IEnumerator WaitForContinue()
+    public IEnumerator WaitForContinue()
     {
         continuePressed = false;
         continueButton.gameObject.SetActive(true);
