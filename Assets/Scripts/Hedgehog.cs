@@ -77,6 +77,7 @@ public class HedgehogCharacter : Character
             bool isDead = target.TakeDamage(9, this);
             Manager.AudioSource.PlayOneShot(_impaleSfx);
             manager.UpdateHUDForCharacter(target);
+            _approachCount = 0; // reset the approach count
             yield return new WaitForSeconds(1f);
 
             manager.OnActionComplete(isDead);

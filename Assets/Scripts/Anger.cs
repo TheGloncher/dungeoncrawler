@@ -90,7 +90,7 @@ public class Anger : Character
         {
             _hasBeenAttacked = true;
         }
-        AddRage(1);
+        AddRage(2);
         return isDead;
     }
     private IEnumerator RageCheckDialogue()

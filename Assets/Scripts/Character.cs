@@ -122,7 +122,7 @@ public class Character : MonoBehaviour
         Renderer renderer = GetComponent<Renderer>();
         if (renderer != null)
         {
-            renderer.material.color = Color.blue; // Change to red to indicate condemnation
+            renderer.material.color = Color.cyan; // Change to red to indicate condemnation
         }
         else
         {
