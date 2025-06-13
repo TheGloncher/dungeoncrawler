@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -39,7 +39,29 @@ public class Hero : Character
 
     private IEnumerator CondemnAction(BattleManager manager, Character self)
     {
-        Character target = self.IsPlayerControlled ? manager.GetEnemy(self) : manager.GetLowestHPPlayer();
+        Character target;
+
+        if (self.IsPlayerControlled)
+        {
+            target = manager.GetEnemy(self);
+        }
+        else
+        {
+            // Get all alive players except the main one
+            List<Character> candidates = new List<Character>(manager.GetPlayerParty());
+            Character mainPlayer = manager.GetMainPlayer(); // ← we’ll add this helper below
+
+            candidates.RemoveAll(c => c == null || !c.IsAlive || c == mainPlayer);
+
+            if (candidates.Count > 0)
+            {
+                target = candidates[Random.Range(0, candidates.Count)];
+            }
+            else
+            {
+                target = mainPlayer; // fallback
+            }
+        }
         if (target == null)
         {
             manager.dialogue.text = "There's no one to judge.";

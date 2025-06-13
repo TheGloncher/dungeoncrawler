@@ -832,6 +832,9 @@ public class BattleManager : MonoBehaviour
         return enemies;
     }
 
-
+    public Character GetMainPlayer()
+    {
+        return _player1Entity; // or however your main player is stored
+    }
 
 }

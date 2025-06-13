@@ -34,10 +34,21 @@ public class MainMenuLogic : MonoBehaviour
         {
             _lastSelected = EventSystem.current.currentSelectedGameObject;
         }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            UnityEngine.SceneManagement.SceneManager.LoadScene("Battle_1");
+        }
     }
 
     public void StartButton()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene("Battle_1");
     }
+
+ 
 }

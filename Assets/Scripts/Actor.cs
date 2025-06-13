@@ -55,12 +55,20 @@ public class Actor : Character
 
         _copiedActions = new();
 
+        // Copy target's actions except Fabricate
         foreach (var action in target.GetActions(manager))
         {
-            if (action.actionName != "Pass" && action.actionName != "Fabricate") // Avoid recursive nonsense
+            if (action.actionName != "Fabricate") // allow Pass now
             {
                 _copiedActions.Add(new CharacterAction(action.actionName, (self) => action.coroutineWithUser(self)));
             }
+        }
+
+        // Ensure Pass is always present
+        bool hasPass = _copiedActions.Exists(a => a.actionName == "Pass");
+        if (!hasPass)
+        {
+            _copiedActions.Add(new CharacterAction("Pass", (self) => Pass(manager, self)));
         }
 
         _hasFabricated = true;

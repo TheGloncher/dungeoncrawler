@@ -89,4 +89,6 @@ public class GameManager : MonoBehaviour
         recruitedParty.Clear(); // ? Clear the actual party list
         SceneManager.LoadScene("MainMenu");
     }
+
+
 }

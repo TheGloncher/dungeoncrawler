@@ -68,7 +68,7 @@ public class Anger : Character
         
         
         
-        manager.dialogue.text = $"It recklessly throws itself at {self.CharacterName}!";
+        manager.dialogue.text = $"It recklessly throws itself at {target.CharacterName}!";
 
         yield return new WaitForSeconds(2f);
         bool isDead = target.TakeDamage(_angerCount, this);
@@ -144,7 +144,7 @@ public class Anger : Character
         manager.dialogue.text = "The creature looks like it's about to lose its mind...";
         //shake the character
         _shake?.TriggerShake(0.5f);
-
+        Manager.AudioSource.PlayOneShot(_maddenSound);
         yield return new WaitForSeconds(2f);
         AddRage(2);
         yield return RageCheckDialogue();
@@ -173,7 +173,7 @@ public class Anger : Character
 
         foreach (var target in targets)
         {
-            bool isDead = target.TakeDamage(10, this);
+            bool isDead = target.TakeDamage(_angerCount, this);
             Manager.AudioSource.PlayOneShot(_ultraHit);
             manager.UpdateHUDForCharacter(target);
         }
